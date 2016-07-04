@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    canvas {
+      float: left;
+    }
+  </style>
+
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+<script>
+
+  var canvas1 = document.getElementById('canvas');
+  var ctx1 = canvas1.getContext('2d');
+  var canvas2 = document.getElementById('canvas');
+  var ctx2 = canvas1.getContext('2d');
+
+  var current, savedX, savedY, factor = 50, saved;
+
+  var img = new Image();
+  img.src = 'rhino.png';
+  img.style.display = 'none';
+
+  img.onload = function() {
+    canvas1.width = img.width;
+    canvas1.height = img.height;
+    ctx1.drawImage(img, 0, 0);
+    ctx1.save();
+
+  };
+
+  canvas1.addEventListener('mousedown', function(event){
+    savedX = event.layerX;
+    savedY = event.layerY;
+    requestAnimationFrame(animate);
+
+  });
+
+//  canvas1.addEventListener('mouseup', function(event){
+//    ctx1.restore();
+//
+//    ctx1.putImageData(saved,
+//      0, 0,
+//      0, 0,
+//      canvas1.width, canvas1.height);
+//
+//  });
+
+  function animate() {
+
+    ctx1.save();
+    ctx1.clearRect(0,0,canvas1.width,canvas1.height);
+    ctx1.drawImage(img, 0, 0);
+
+    current = ctx1.getImageData(Math.abs(savedX - (factor/2)), Math.abs(savedY - (factor/2)), factor, factor);
+
+    if(!saved) {
+      saved = ctx1.getImageData(0, 0, canvas1.width, canvas1.height);
+    }
+
+    createImageBitmap(current, 0, 0, factor, factor)
+
+      .then(function(sprite){
+
+        // outer ring edge
+        ctx1.beginPath();
+        ctx1.arc(savedX, savedY, factor/2, 0, Math.PI * 2);
+        ctx1.clip();
+
+        ctx1.globalCompositeOperation='source-atop';
+
+        // ring image
+        ctx1.drawImage(sprite,
+          0 , 0, sprite.width*0.9, sprite.height*0.9,
+          Math.abs(savedX - (factor/2)), Math.abs(savedY - (factor/2)), sprite.width*1.1, sprite.height*1.1);
+        ctx1.closePath();
+
+        // inner ring edge
+        ctx1.beginPath();
+        ctx1.arc(savedX, savedY, factor/2.2, 0, Math.PI * 2);
+        ctx1.clip();
+        ctx1.globalCompositeOperation='source-over';
+
+        // re-draw background
+        ctx1.drawImage(sprite,
+          0 , 0,
+          sprite.width, sprite.height,
+          Math.abs(savedX - (factor/2)), Math.abs(savedY - (factor/2)),
+          sprite.width, sprite.height);
+        ctx1.closePath();
+
+        // clip ring hole
+        ctx1.beginPath();
+        ctx1.arc(savedX, savedY, factor/2.6, 0, Math.PI * 2);
+        ctx1.clip();
+
+        ctx1.restore();
+
+        factor += 20;
+        if(factor < 450) {
+          requestAnimationFrame(animate);
+        }
+
+      }).then(function(){
+//      ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+//      ctx1.drawImage(img, 0, 0);
+    });
+
+  }
+
+
+
+</script>
+</html>

@@ -34,22 +34,23 @@
 
   };
 
-  canvas1.addEventListener('mousedown', function(event){
+  canvas1.addEventListener('click', function(event){
     savedX = event.layerX;
     savedY = event.layerY;
     requestAnimationFrame(animate);
+    //    ctx1.save();
+    ctx1.clearRect(0,0,canvas1.width,canvas1.height);
+//    ctx1.drawImage(img, 0, 0);
+    ctx1.putImageData(saved,
+      0, 0,
+      0, 0,
+      canvas1.width, canvas1.height);
+    ctx1.restore();
+    factor = 50;
 
   });
 
-//  canvas1.addEventListener('mouseup', function(event){
-//    ctx1.restore();
-//
-//    ctx1.putImageData(saved,
-//      0, 0,
-//      0, 0,
-//      canvas1.width, canvas1.height);
-//
-//  });
+
 
   function animate() {
 
@@ -102,14 +103,11 @@
         ctx1.restore();
 
         factor += 20;
-        if(factor < 450) {
+        if(factor < 500) {
           requestAnimationFrame(animate);
         }
 
-      }).then(function(){
-//      ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-//      ctx1.drawImage(img, 0, 0);
-    });
+      });
 
   }
 
